@@ -43,7 +43,7 @@ bot.start(async (ctx) => {
   userSessions[ctx.from.id] = {};
   await ctx.reply(
     "⚡️ **ETHEREUM TRENDING BOT | Fast-Track TOS**\n\n" +
-    "Direct promotion placement on **@Trending** & **@EthTrendingCI** (5.5M+ daily views). Zero queue time.",
+    "Direct promotion placement on **@EthTrendingCI** (5.5M+ daily views). Zero queue time.",
     { parse_mode: 'Markdown' }
   );
   await ctx.reply(
@@ -191,7 +191,7 @@ bot.action('verify_payment', async (ctx) => {
     `• CA: \`${session.ca || 'N/A'}\`\n` +
     `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n` +
     "⏳ **Queue Status:** Your submission is in our manual verification queue. Processing window takes **Instant to 4 hours max** (covering off-peak hours).\n\n" +
-    "Rest assured, once verified on-chain, your project goes straight to @Trending & @EthTrendingCI! Thank you for choosing ETHEREUM TRENDING BOT.",
+    "Rest assured, once verified on-chain, your project goes straight to @EthTrendingCI! Thank you for choosing ETHEREUM TRENDING BOT.",
     { parse_mode: 'Markdown', ...finalMenu }
   );
 
