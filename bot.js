@@ -12,7 +12,7 @@ const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || "7424343773";
 
 // Simple web server for Railway health checks
 app.get('/', (req, res) => {
-  res.send('ETHEREUM TRENDING BOT is active and running 24/7!');
+  res.send('ETHEREUM TRENDING SERVICE is active!');
 });
 
 app.listen(PORT, () => {
@@ -21,8 +21,8 @@ app.listen(PORT, () => {
 
 // Keyboards
 const mainMenu = Markup.inlineKeyboard([
-  [Markup.button.callback('🔥 Trending Info', 'trending'), Markup.button.callback('🚀 Submit Token', 'submit')],
-  [Markup.button.callback('⚙️ Settings', 'settings'), Markup.button.callback('ℹ️ Help', 'help')]
+  [Markup.button.callback('🔥 Service Info', 'trending'), Markup.button.callback('🚀 Submit Token', 'submit')],
+  [Markup.button.callback('⚙️ My Order', 'settings'), Markup.button.callback('ℹ️ Help', 'help')]
 ]);
 
 const backMenu = Markup.inlineKeyboard([
@@ -42,31 +42,47 @@ const packagesKeyboard = Markup.inlineKeyboard([
 bot.start(async (ctx) => {
   userSessions[ctx.from.id] = {};
   await ctx.reply(
-    "⚡️ **ETHEREUM TRENDING BOT | Fast-Track TOS**\n\n" +
-    "Direct promotion placement on **@EthTrendingCI** (5.5M+ daily views). Zero queue time.",
+    "⚡️ **ETHEREUM TRENDING | Premium Visibility Agency** ⚡️\n\n" +
+    "Secure premium promotion spots on exclusive, high-traffic Ethereum networks. Zero queue time, maximum exposure.",
     { parse_mode: 'Markdown' }
   );
   await ctx.reply(
-    "🚀 **Ready to trend your token?** Tap below to submit your details!",
+    "🚀 **Ready to trend your token?** Tap below to begin your submission!",
     { parse_mode: 'Markdown', ...mainMenu }
   );
 });
 
+// Command handlers for the "/" menu
+bot.command('menu', async (ctx) => {
+  userSessions[ctx.from.id] = {};
+  await ctx.reply('🏠 **Main Menu**\n\nSelect an action below:', { parse_mode: 'Markdown', ...mainMenu });
+});
+
+bot.command('submit', async (ctx) => {
+  userSessions[ctx.from.id] = { step: 'waiting_for_ca' };
+  await ctx.reply("🚀 **Token Submission Step 1/3**\n\nPlease send your **Ethereum Contract Address (CA)** (must start with `0x`):", { parse_mode: 'Markdown', ...backMenu });
+});
+
+bot.command('help', async (ctx) => {
+  await ctx.reply("ℹ️ **Help**\n\nSubmit your token details, select your exclusive package, and complete your secure transfer for placement.", { parse_mode: 'Markdown', ...backMenu });
+});
+
+// Inline Actions
 bot.action('menu', async (ctx) => {
   userSessions[ctx.from.id] = {};
   await ctx.editMessageText('🏠 **Main Menu**\n\nSelect an action below:', { parse_mode: 'Markdown', ...mainMenu });
 });
 
 bot.action('help', async (ctx) => {
-  await ctx.editMessageText("ℹ️ **Help**\n\nSubmit your token, select your ETH package, and complete your secure transfer.", { parse_mode: 'Markdown', ...backMenu });
+  await ctx.editMessageText("ℹ️ **Help**\n\nSubmit your token details, select your exclusive package, and complete your secure transfer for placement.", { parse_mode: 'Markdown', ...backMenu });
 });
 
 bot.action('settings', async (ctx) => {
-  await ctx.editMessageText(`⚙️ **Settings**\n\nYour Telegram ID: \`${ctx.from.id}\``, { parse_mode: 'Markdown', ...backMenu });
+  await ctx.editMessageText("⚙️ **Order Status**\n\nSubmit a new token via the main menu to begin.", { parse_mode: 'Markdown', ...backMenu });
 });
 
 bot.action('trending', async (ctx) => {
-  await ctx.editMessageText("🔥 **Trending Info**\n\nGuaranteed rapid visibility across top-tier crypto channels.", { parse_mode: 'Markdown', ...backMenu });
+  await ctx.editMessageText("🔥 **Service Overview**\n\nWe connect high-potential ETH projects with targeted, organic investor audiences through our exclusive network.", { parse_mode: 'Markdown', ...backMenu });
 });
 
 // --- SUBMISSION FLOW (CA -> TG -> X) ---
@@ -107,7 +123,7 @@ bot.on('text', async (ctx) => {
 
     await ctx.reply(
       "🔍 **Double-Check Your Submission!**\n\n" +
-      "Please review your details carefully before proceeding. Incorrect CAs or broken links will delay your promo:\n\n" +
+      "Please review your details carefully before proceeding. Incorrect CAs or broken links will delay your placement:\n\n" +
       `• **CA:** \`${session.ca}\`\n` +
       `• **Telegram:** ${session.tg}\n` +
       `• **X Profile:** ${session.x}\n\n` +
@@ -121,7 +137,7 @@ bot.on('text', async (ctx) => {
 bot.action('confirm_details', async (ctx) => {
   await ctx.editMessageText(
     "✅ **Details Confirmed!**\n\n" +
-    "📦 **Select your promotion package below:**",
+    "📦 **Select your exclusive promotion package below:**",
     { parse_mode: 'Markdown', ...packagesKeyboard }
   );
 });
@@ -147,7 +163,7 @@ bot.action('confirm_details', async (ctx) => {
     ]);
 
     await ctx.editMessageText(
-      "💳 **Direct ETH Payment Instructions**\n\n" +
+      "💳 **Secure ETH Payment Instructions**\n\n" +
       `Selected Plan: **${plan.duration} — ${plan.amount} ETH**\n\n` +
       "Please send the exact amount of ETH to our official treasury wallet below:\n\n" +
       `\`${ADMIN_ETH_WALLET}\`\n\n` +
@@ -174,8 +190,8 @@ bot.action('verify_payment', async (ctx) => {
         `• **Telegram:** ${session.tg || 'N/A'}\n` +
         `• **X Profile:** ${session.x || 'N/A'}\n` +
         `• **Package:** ${plan.duration} — **${plan.amount} ETH**\n\n` +
-        "⚡️ *Action required:* Check your ETH wallet for the incoming transfer, then post the token to @Trending & @EthTrendingCI!",
-        { parse_mode: 'Markdown' }
+        "⚡️ *Action required:* Check your ETH wallet for the incoming transfer, then post the token to [DSTrendingEthereum](https://t.me/DSTrendingEthereum)!",
+        { parse_mode: 'Markdown', disable_web_page_preview: true }
       );
     } catch (err) {
       console.error("Failed to send admin notification:", err);
@@ -191,15 +207,21 @@ bot.action('verify_payment', async (ctx) => {
     `• CA: \`${session.ca || 'N/A'}\`\n` +
     `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n` +
     "⏳ **Queue Status:** Your submission is in our manual verification queue. Processing window takes **Instant to 4 hours max** (covering off-peak hours).\n\n" +
-    "Rest assured, once verified on-chain, your project goes straight to @EthTrendingCI! Thank you for choosing ETHEREUM TRENDING BOT.",
+    "Rest assured, once verified on-chain, your project goes straight to our premium partner network: **[DSTrendingEthereum](https://t.me/DSTrendingEthereum)**!\n\nThank you for choosing premium visibility.",
     { parse_mode: 'Markdown', ...finalMenu }
   );
 
   userSessions[userId] = {};
 });
 
-bot.launch().then(() => {
-  console.log('ETHEREUM TRENDING BOT is live on Railway!');
+// Register Telegram Menu Commands on Startup
+bot.launch().then(async () => {
+  await bot.telegram.setMyCommands([
+    { command: 'menu', description: 'Open main menu' },
+    { command: 'submit', description: 'Submit your token for trending' },
+    { command: 'help', description: 'Get assistance and info' }
+  ]);
+  console.log('ETHEREUM TRENDING SERVICE is live on Railway with command menu!');
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
