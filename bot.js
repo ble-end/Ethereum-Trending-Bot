@@ -95,7 +95,10 @@ bot.on('text', async (ctx) => {
   const session = userSessions[userId];
   if (!session || !session.step) return;
 
-  const text = ctx.message.text.trim();
+  const text = ctx.message.text ? ctx.message.text.trim() : "";
+  if (!text) return;
+
+  console.log(`User ${userId} at step ${session.step} sent: ${text}`);
 
   if (session.step === 'waiting_for_ca') {
     if (!text.startsWith('0x') || text.length < 30) {
@@ -120,16 +123,24 @@ bot.on('text', async (ctx) => {
       [Markup.button.callback('✏️ Restart Submission', 'submit')]
     ]);
 
-    // Safe text reply without markdown triggers to prevent freezing on custom X handles/links
-    await ctx.reply(
-      "🔍 Double-Check Your Submission!\n\n" +
-      "Please review your details carefully before proceeding. Incorrect CAs or broken links will delay your placement:\n\n" +
-      `• CA: ${session.ca}\n` +
-      `• Telegram: ${session.tg}\n` +
-      `• X Profile: ${session.x}\n\n` +
-      "Are these correct?",
-      reviewKeyboard
-    );
+    // Explicitly disabling link previews to prevent iOS client hangs
+    try {
+      await ctx.reply(
+        "🔍 Double-Check Your Submission!\n\n" +
+        "Please review your details carefully before proceeding. Incorrect CAs or broken links will delay your placement:\n\n" +
+        `• CA: ${session.ca}\n` +
+        `• Telegram: ${session.tg}\n` +
+        `• X Profile: ${session.x}\n\n` +
+        "Are these correct?",
+        {
+          ...reviewKeyboard,
+          disable_web_page_preview: true
+        }
+      );
+    } catch (err) {
+      console.error("Error sending review message to iOS user:", err);
+      await ctx.reply("⚠️ An error occurred processing your link. Please tap 'Restart Submission' below.", backMenu);
+    }
   }
 });
 
@@ -190,7 +201,8 @@ bot.action('verify_payment', async (ctx) => {
         `• Telegram: ${session.tg || 'N/A'}\n` +
         `• X Profile: ${session.x || 'N/A'}\n` +
         `• Package: ${plan.duration} — ${plan.amount} ETH\n\n` +
-        "⚡️ Action required: Check your wallet for the incoming ETH. Once confirmed, message the user or post their token to https://t.me/DSTrendingEthereum!"
+        "⚡️ Action required: Check your wallet for the incoming ETH. Once confirmed, message the user or post their token to https://t.me/DSTrendingEthereum!",
+        { disable_web_page_preview: true }
       );
     } catch (err) {
       console.error("Failed to send admin notification:", err);
@@ -220,7 +232,7 @@ bot.launch().then(async () => {
     { command: 'submit', description: 'Submit your token for trending' },
     { command: 'help', description: 'Get assistance and info' }
   ]);
-  console.log('ETHEREUM TRENDING SERVICE is live on Railway with anti-freeze fix!');
+  console.log('ETHEREUM TRENDING SERVICE is live on Railway with iPhone anti-hang fix!');
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
