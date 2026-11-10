@@ -164,7 +164,7 @@ bot.action('confirm_details', async (ctx) => {
 
     await ctx.editMessageText(
       "💳 **Secure ETH Payment Instructions**\n\n" +
-      `Selected Plan: **${plan.duration} — ${plan.amount} ETH**\n\n" +
+      `Selected Plan: **${plan.duration} — ${plan.amount} ETH**\n\n` +
       "Please send the exact amount of ETH to our official treasury wallet below:\n\n" +
       `\`${ADMIN_ETH_WALLET}\`\n\n` +
       "⚠️ *Note:* Tap the address to copy. Once your on-chain transaction is sent, click the button below to log your claim!",
@@ -189,7 +189,7 @@ bot.action('verify_payment', async (ctx) => {
         `• **CA:** \`${session.ca || 'N/A'}\`\n` +
         `• **Telegram:** ${session.tg || 'N/A'}\n` +
         `• **X Profile:** ${session.x || 'N/A'}\n` +
-        `• **Package:** ${plan.duration} — **${plan.amount} ETH**\n\n" +
+        `• **Package:** ${plan.duration} — **${plan.amount} ETH**\n\n` +
         "⚡️ *Action required:* Check your wallet for the incoming ETH. Once confirmed, message the user or post their token to https://t.me/DSTrendingEthereum!",
         { parse_mode: 'Markdown', disable_web_page_preview: true }
       );
@@ -202,11 +202,10 @@ bot.action('verify_payment', async (ctx) => {
     [Markup.button.callback('🏠 Back to Main Menu', 'menu')]
   ]);
 
-  // STAYS SECURE: Channel name is NOT revealed here. User must wait for verification.
   await ctx.editMessageText(
     "⏳ **Payment Verification in Progress**\n\n" +
     `• CA: \`${session.ca || 'N/A'}\`\n` +
-    `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n" +
+    `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n` +
     "🔒 **Status:** Your transaction hash / claim has been submitted to our node validators. Manual on-chain confirmation takes **Instant to 4 hours max**.\n\n" +
     "Once verified, your promotion will go live and confirmation details will be pushed directly to your chat!",
     { parse_mode: 'Markdown', ...finalMenu }
