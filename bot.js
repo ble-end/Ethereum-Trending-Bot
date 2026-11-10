@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 const userSessions = {};
 const ADMIN_ETH_WALLET = process.env.ADMIN_ETH_WALLET || "0xYourActualWalletAddressHere";
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || "7424343773"; // Fallback to your ID
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || "7424343773";
 
 // Simple web server for Railway health checks
 app.get('/', (req, res) => {
@@ -164,7 +164,6 @@ bot.action('verify_payment', async (ctx) => {
   const session = userSessions[userId] || {};
   const plan = session.selectedPlan || { duration: 'Custom', amount: '0.X' };
 
-  // 1. Send Instant Notification to Admin Chat/ID
   if (ADMIN_CHAT_ID) {
     try {
       await bot.telegram.sendMessage(
@@ -183,7 +182,6 @@ bot.action('verify_payment', async (ctx) => {
     }
   }
 
-  // 2. Respond to the User
   const finalMenu = Markup.inlineKeyboard([
     [Markup.button.callback('🏠 Back to Main Menu', 'menu')]
   ]);
@@ -191,7 +189,7 @@ bot.action('verify_payment', async (ctx) => {
   await ctx.editMessageText(
     "📥 **Payment Claim Logged Successfully!**\n\n" +
     `• CA: \`${session.ca || 'N/A'}\`\n` +
-    `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n" +
+    `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n` +
     "⏳ **Queue Status:** Your submission is in our manual verification queue. Processing window takes **Instant to 4 hours max** (covering off-peak hours).\n\n" +
     "Rest assured, once verified on-chain, your project goes straight to @Trending & @EthTrendingCI! Thank you for choosing ETHEREUM TRENDING BOT.",
     { parse_mode: 'Markdown', ...finalMenu }
