@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 const userSessions = {};
 const ADMIN_ETH_WALLET = process.env.ADMIN_ETH_WALLET || "0xYourActualWalletAddressHere";
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || "7424343773"; // Fallback to your ID
 
 // Simple web server for Railway health checks
 app.get('/', (req, res) => {
@@ -42,7 +43,7 @@ bot.start(async (ctx) => {
   userSessions[ctx.from.id] = {};
   await ctx.reply(
     "⚡️ **ETHEREUM TRENDING BOT | Fast-Track TOS**\n\n" +
-    "Direct promotion placement on **@EthTrendingCI** (5.5M+ daily views). Zero queue time.",
+    "Direct promotion placement on **@Trending** & **@EthTrendingCI** (5.5M+ daily views). Zero queue time.",
     { parse_mode: 'Markdown' }
   );
   await ctx.reply(
@@ -97,20 +98,34 @@ bot.on('text', async (ctx) => {
   } 
   else if (session.step === 'waiting_for_x') {
     session.x = text;
-    session.step = 'choosing_package';
+    session.step = 'review_details';
+
+    const reviewKeyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('✅ Yes, Proceed to Packages', 'confirm_details')],
+      [Markup.button.callback('✏️ Restart Submission', 'submit')]
+    ]);
 
     await ctx.reply(
-      "✅ **Validation Successful!**\n\n" +
-      `• CA: \`${session.ca}\`\n` +
-      `• Telegram: ${session.tg}\n` +
-      `• X Profile: ${session.x}\n\n` +
-      "📦 **Select your promotion package below:**",
-      { parse_mode: 'Markdown', ...packagesKeyboard }
+      "🔍 **Double-Check Your Submission!**\n\n" +
+      "Please review your details carefully before proceeding. Incorrect CAs or broken links will delay your promo:\n\n" +
+      `• **CA:** \`${session.ca}\`\n` +
+      `• **Telegram:** ${session.tg}\n` +
+      `• **X Profile:** ${session.x}\n\n` +
+      "Are these correct?",
+      { parse_mode: 'Markdown', ...reviewKeyboard }
     );
   }
 });
 
-// --- PACKAGE SELECTION & PAYMENT INSTRUCTIONS ---
+// --- CONFIRMATION & PACKAGE SELECTION ---
+bot.action('confirm_details', async (ctx) => {
+  await ctx.editMessageText(
+    "✅ **Details Confirmed!**\n\n" +
+    "📦 **Select your promotion package below:**",
+    { parse_mode: 'Markdown', ...packagesKeyboard }
+  );
+});
+
 ['pkg_6h', 'pkg_12h', 'pkg_16h', 'pkg_20h', 'pkg_28h'].forEach((pkgCode) => {
   bot.action(pkgCode, async (ctx) => {
     const userId = ctx.from.id;
@@ -142,12 +157,33 @@ bot.on('text', async (ctx) => {
   });
 });
 
-// --- VERIFICATION CLAIM LOG ---
+// --- VERIFICATION CLAIM LOG & ADMIN NOTIFICATION ---
 bot.action('verify_payment', async (ctx) => {
   const userId = ctx.from.id;
+  const username = ctx.from.username ? `@${ctx.from.username}` : `ID: ${userId}`;
   const session = userSessions[userId] || {};
   const plan = session.selectedPlan || { duration: 'Custom', amount: '0.X' };
 
+  // 1. Send Instant Notification to Admin Chat/ID
+  if (ADMIN_CHAT_ID) {
+    try {
+      await bot.telegram.sendMessage(
+        ADMIN_CHAT_ID,
+        "🚨 **NEW PAYMENT CLAIM / SUBMISSION!** 🚨\n\n" +
+        `• **User:** ${username} (\`${userId}\`)\n` +
+        `• **CA:** \`${session.ca || 'N/A'}\`\n` +
+        `• **Telegram:** ${session.tg || 'N/A'}\n` +
+        `• **X Profile:** ${session.x || 'N/A'}\n` +
+        `• **Package:** ${plan.duration} — **${plan.amount} ETH**\n\n` +
+        "⚡️ *Action required:* Check your ETH wallet for the incoming transfer, then post the token to @Trending & @EthTrendingCI!",
+        { parse_mode: 'Markdown' }
+      );
+    } catch (err) {
+      console.error("Failed to send admin notification:", err);
+    }
+  }
+
+  // 2. Respond to the User
   const finalMenu = Markup.inlineKeyboard([
     [Markup.button.callback('🏠 Back to Main Menu', 'menu')]
   ]);
@@ -155,9 +191,9 @@ bot.action('verify_payment', async (ctx) => {
   await ctx.editMessageText(
     "📥 **Payment Claim Logged Successfully!**\n\n" +
     `• CA: \`${session.ca || 'N/A'}\`\n` +
-    `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n` +
+    `• Package: **${plan.duration} (${plan.amount} ETH)**\n\n" +
     "⏳ **Queue Status:** Your submission is in our manual verification queue. Processing window takes **Instant to 4 hours max** (covering off-peak hours).\n\n" +
-    "Rest assured, once verified on-chain, your project goes straight to @EthTrendingCI! Thank you for choosing ETHEREUM TRENDING BOT.",
+    "Rest assured, once verified on-chain, your project goes straight to @Trending & @EthTrendingCI! Thank you for choosing ETHEREUM TRENDING BOT.",
     { parse_mode: 'Markdown', ...finalMenu }
   );
 
